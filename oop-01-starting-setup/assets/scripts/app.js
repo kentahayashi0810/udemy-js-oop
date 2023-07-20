@@ -12,7 +12,39 @@ class Product {
   }
 }
 
-class ShoppingCart {
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+class Component {
+  constructor(renderHookId) {
+    this.hookId = renderHookId;
+  }
+  createRootElement(tag, classNames, attributes) {
+    const rootElement = document.createElement(tag);
+    if (classNames) {
+      rootElement.className = classNames;
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+
+    if (this.hookId) {
+      document.getElementById(this.hookId).append(rootElement);
+    }
+    return rootElement;
+  }
+}
+
+class ShoppingCart extends Component {
+  constructor(hookId) {
+    super(hookId);
+  }
   items = [];
 
   set cartItems(value) {
@@ -36,19 +68,21 @@ class ShoppingCart {
   }
 
   render() {
-    const cartEl = document.createElement("section");
+    const cartEl = this.createRootElement("section", "cart");
+    // const cartEl = document.createElement("section");
     cartEl.innerHTML = `
       <h2>Total:\$ ${0}</h2>
       <button>Order Now!</button>
     `;
-    cartEl.className = "cart";
+    // cartEl.className = "cart";
     this.totalOutput = cartEl.querySelector("h2");
-    return cartEl;
+    // return cartEl;
   }
 }
 
-class ProductItem {
+class ProductItem extends Component {
   constructor(product) {
+    super();
     this.product = product;
   }
 
@@ -57,8 +91,9 @@ class ProductItem {
   }
 
   render() {
-    const prodEl = document.createElement("li");
-    prodEl.className = "product-item";
+    const prodEl = this.createRootElement("li", "product-item");
+    // const prodEl = document.createElement("li");
+    // prodEl.className = "product-item";
     prodEl.innerHTML = `
       <div>
         <img src="${this.product.imageUrl}" alt="${this.product.title}" >
@@ -76,7 +111,11 @@ class ProductItem {
   }
 }
 
-class ProductList {
+class ProductList extends Component {
+  constructor(hookId) {
+    super(hookId);
+  }
+
   products = [
     new Product(
       "A Pillow",
@@ -93,27 +132,29 @@ class ProductList {
   ];
 
   render() {
-    const prodList = document.createElement("ul");
-    prodList.className = "product-list";
+    const prodList = this.createRootElement("ul", "product-list");
+    // const prodList = document.createElement("ul");
+    // prodList.className = "product-list";
+
     for (const prod of this.products) {
       const productItem = new ProductItem(prod);
       const prodEl = productItem.render();
       prodList.append(prodEl);
     }
-    return prodList;
+    // return prodList;
   }
 }
 
 class Shop {
   render() {
-    const renderHook = document.getElementById("app");
+    // const renderHook = document.getElementById("app");
 
-    this.cart = new ShoppingCart();
-    const cartEl = this.cart.render();
-    const productList = new ProductList();
-    const prodListEl = productList.render();
-    renderHook.append(cartEl);
-    renderHook.append(prodListEl);
+    this.cart = new ShoppingCart("app");
+    this.cart.render();
+    const productList = new ProductList("app");
+    productList.render();
+    // renderHook.append(cartEl);
+    // renderHook.append(prodListEl);
   }
 }
 
