@@ -20,9 +20,15 @@ class ElementAttribute {
 }
 
 class Component {
-  constructor(renderHookId) {
+  constructor(renderHookId, shouldRender = true) {
     this.hookId = renderHookId;
+    if (shouldRender) {
+      this.render();
+    }
   }
+
+  render() {}
+
   createRootElement(tag, classNames, attributes) {
     const rootElement = document.createElement(tag);
     if (classNames) {
@@ -82,8 +88,9 @@ class ShoppingCart extends Component {
 
 class ProductItem extends Component {
   constructor(product, hookId) {
-    super(hookId);
+    super(hookId, false);
     this.product = product;
+    this.render();
   }
 
   addToCart() {
@@ -112,41 +119,58 @@ class ProductItem extends Component {
 class ProductList extends Component {
   constructor(hookId) {
     super(hookId);
+    this.fetchProduct();
   }
 
-  products = [
-    new Product(
-      "A Pillow",
-      "https://images.unsplash.com/photo-1629949009710-2df14c41a72e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2680&q=80",
-      19.99,
-      "A soft Pillow!"
-    ),
-    new Product(
-      "A Carpet",
-      "https://images.unsplash.com/photo-1534889156217-d643df14f14a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2728&q=80",
-      89.99,
-      "A great Carpet!"
-    ),
-  ];
+  fetchProduct() {
+    this.products = [
+      new Product(
+        "A Pillow",
+        "https://images.unsplash.com/photo-1629949009710-2df14c41a72e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2680&q=80",
+        19.99,
+        "A soft Pillow!"
+      ),
+      new Product(
+        "A Carpet",
+        "https://images.unsplash.com/photo-1534889156217-d643df14f14a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2728&q=80",
+        89.99,
+        "A great Carpet!"
+      ),
+      new Product(
+        "An abondanded house",
+        "https://images.unsplash.com/photo-1566754844421-9bc834baf4a3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80",
+        19000,
+        "A great house!"
+      ),
+    ];
+
+    this.renderProducts();
+  }
+
+  renderProducts() {
+    for (const prod of this.products) {
+      const productItem = new ProductItem(prod, "prod-list");
+    }
+  }
 
   render() {
     this.createRootElement("ul", "product-list", [
       new ElementAttribute("id", "prod-list"),
     ]);
-
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod, "prod-list");
-      productItem.render();
+    if (this.products && this.products.length > 0) {
+      this.renderProducts();
     }
   }
 }
 
 class Shop {
+  constructor() {
+    this.render();
+  }
+
   render() {
     this.cart = new ShoppingCart("app");
-    this.cart.render();
-    const productList = new ProductList("app");
-    productList.render();
+    new ProductList("app");
   }
 }
 
@@ -155,7 +179,6 @@ class App {
 
   static init() {
     const shop = new Shop();
-    shop.render();
     this.cart = shop.cart;
   }
 
