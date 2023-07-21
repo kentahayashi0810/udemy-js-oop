@@ -49,7 +49,12 @@ class Component {
 
 class ShoppingCart extends Component {
   constructor(hookId) {
-    super(hookId);
+    super(hookId, false);
+    this.orderProducts = () => {
+      console.log("Ordering products...");
+      console.log(this.items);
+    };
+    this.render();
   }
   items = [];
 
@@ -80,9 +85,10 @@ class ShoppingCart extends Component {
       <h2>Total:\$ ${0}</h2>
       <button>Order Now!</button>
     `;
-    // cartEl.className = "cart";
+
+    const orderButton = cartEl.querySelector("button");
+    orderButton.addEventListener("click", this.orderProducts);
     this.totalOutput = cartEl.querySelector("h2");
-    // return cartEl;
   }
 }
 
@@ -117,13 +123,16 @@ class ProductItem extends Component {
 }
 
 class ProductList extends Component {
+  #products = [];
+
   constructor(hookId) {
-    super(hookId);
+    super(hookId, false);
+    this.render();
     this.fetchProduct();
   }
 
   fetchProduct() {
-    this.products = [
+    this.#products = [
       new Product(
         "A Pillow",
         "https://images.unsplash.com/photo-1629949009710-2df14c41a72e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2680&q=80",
@@ -148,7 +157,7 @@ class ProductList extends Component {
   }
 
   renderProducts() {
-    for (const prod of this.products) {
+    for (const prod of this.#products) {
       const productItem = new ProductItem(prod, "prod-list");
     }
   }
@@ -157,7 +166,7 @@ class ProductList extends Component {
     this.createRootElement("ul", "product-list", [
       new ElementAttribute("id", "prod-list"),
     ]);
-    if (this.products && this.products.length > 0) {
+    if (this.#products && this.#products.length > 0) {
       this.renderProducts();
     }
   }
